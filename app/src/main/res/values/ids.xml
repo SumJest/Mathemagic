@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="answerEditText" type="id" />
+    <item name="timerTextView" type="id" />
+    <item name="livesTextView" type="id" />
+    <item name="scoreTextView" type="id" />
+    <item name="exampleTextView" type="id" />
+    <item name="answerButton" type="id" />
+    <item name="difficultyGroup" type="id" />
+    <item name="difficultyEasy" type="id" />
+    <item name="difficultyMedium" type="id" />
+    <item name="operationGroup" type="id" />
+    <item name="operationAdd" type="id" />
+    <item name="operationSubtract" type="id" />
+    <item name="operationMultiply" type="id" />
+    <item name="operationDivide" type="id" />
+    <item name="saveButton" type="id" />
+</resources>
