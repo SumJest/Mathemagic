@@ -6,7 +6,32 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Поле для отображения текущего примера -->
+    <!-- Панель информации -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <!-- Количество оставшихся ошибок -->
+        <TextView
+            android:id="@+id/livesTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lives: 3"
+            android:textSize="16sp"
+            android:textColor="@color/white" />
+
+        <!-- Количество очков -->
+        <TextView
+            android:id="@+id/scoreTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Score: 0"
+            android:textSize="16sp"
+            android:textColor="@color/white" />
+    </LinearLayout>
+    <!-- Поле с текущим примером -->
     <TextView
         android:id="@+id/exampleTextView"
         android:layout_width="match_parent"
@@ -16,48 +41,74 @@
         android:gravity="center"
         android:layout_marginBottom="16dp" />
 
-    <!-- Поле для отображения текущего счёта -->
+    <!-- Поле для отображения введённого ответа -->
     <TextView
-        android:id="@+id/scoreTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Score: 0"
-        android:textSize="18sp"
-        android:layout_marginBottom="8dp" />
-
-    <!-- Поле для отображения количества жизней -->
-    <TextView
-        android:id="@+id/livesTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Lives: 3"
-        android:textSize="18sp"
-        android:layout_marginBottom="8dp" />
-
-    <!-- Поле для отображения оставшегося времени -->
-    <TextView
-        android:id="@+id/timerTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Time: 60"
-        android:textSize="18sp"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Поле ввода ответа -->
-    <EditText
-        android:id="@+id/answerEditText"
+        android:id="@+id/answerDisplay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="0"
         android:hint="Введите ответ"
-        android:inputType="numberSigned|numberDecimal"
-        android:layout_marginBottom="16dp" />
+        android:gravity="center"
+        android:textSize="24sp"
+        android:background="@android:color/holo_red_light"
+        android:layout_marginBottom="16dp"
+        android:padding="12dp" />
 
+    <!-- Кнопки виртуальной клавиатуры -->
+    <GridLayout
+        android:id="@+id/keyboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="3"
+        android:rowCount="4"
+        android:layout_marginTop="16dp">
+
+        <!-- Цифры -->
+        <Button android:id="@+id/btn_1" style="@style/KeyButton" android:text="1" />
+        <Button android:id="@+id/btn_2" style="@style/KeyButton" android:text="2" />
+        <Button android:id="@+id/btn_3" style="@style/KeyButton" android:text="3" />
+
+        <Button android:id="@+id/btn_4" style="@style/KeyButton" android:text="4" />
+        <Button android:id="@+id/btn_5" style="@style/KeyButton" android:text="5" />
+        <Button android:id="@+id/btn_6" style="@style/KeyButton" android:text="6" />
+
+        <Button android:id="@+id/btn_7" style="@style/KeyButton" android:text="7" />
+        <Button android:id="@+id/btn_8" style="@style/KeyButton" android:text="8" />
+        <Button android:id="@+id/btn_9" style="@style/KeyButton" android:text="9" />
+
+        <!-- Дополнительные клавиши -->
+        <Button android:id="@+id/btn_minus" style="@style/KeyButton" android:text="-" />
+        <Button android:id="@+id/btn_0" style="@style/KeyButton" android:text="0" />
+        <Button android:id="@+id/btn_dot" style="@style/KeyButton" android:text="." />
+    </GridLayout>
+    <Button
+        android:id="@+id/btnClear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Очистить"
+        android:layout_marginEnd="24dp"
+        android:backgroundTint="@android:color/holo_red_dark"
+        android:textColor="@color/white"
+        android:textStyle="bold" />
     <!-- Кнопка для подтверждения ответа -->
     <Button
-        android:id="@+id/answerButton"
-        android:layout_width="wrap_content"
+        android:id="@+id/btnSubmit"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Ответить"
-        android:layout_gravity="center_horizontal" />
+        android:layout_marginTop="24dp"
+        android:backgroundTint="@color/primary"
+        android:textColor="@color/white"
+        android:textStyle="bold" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:progress="60"
+        android:max="60"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:progressTint="@color/primary"
+        android:progressBackgroundTint="@android:color/darker_gray" />
 </LinearLayout>

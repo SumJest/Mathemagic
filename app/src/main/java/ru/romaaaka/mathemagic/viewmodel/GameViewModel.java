@@ -2,10 +2,8 @@ package ru.romaaaka.mathemagic.viewmodel;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProvider;
 
 import ru.romaaaka.mathemagic.R;
 import ru.romaaaka.mathemagic.model.ExampleGenerator;

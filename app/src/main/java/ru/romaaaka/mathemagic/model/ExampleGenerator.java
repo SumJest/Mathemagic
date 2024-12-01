@@ -9,12 +9,23 @@ public class ExampleGenerator {
         this.difficulty = difficulty;
     }
 
-    public String generateExample() {
-        int range = difficulty * 10; // Определяем диапазон чисел
-        int num1 = (int) (Math.random() * range);
-        int num2 = (int) (Math.random() * range);
+    private int generateNumber(int difficulty) {
+        int start = (int) Math.pow(10, difficulty - 1); // Определяем диапазон чисел
+        int end = (int) Math.pow(10, difficulty);
+        return (int) (Math.random() * (end - start)) + start;
+    }
 
-        if (operationType.equals("/") && num2 == 0) num2 = 1; // Избегаем деления на 0
+    public String generateExample() {
+        int num1 = generateNumber(this.difficulty);
+        int num2 = generateNumber(this.difficulty);
+
+        if (operationType.equals("/")) {
+            int answer = ((int) (Math.random() * 9)) + 1;
+            num1 = num2 * answer;
+        } else if (operationType.equals("*")) {
+            num1 = generateNumber(Math.max(this.difficulty - 1, 1));
+            num2 = generateNumber(Math.max(this.difficulty - 1, 1));
+        }
 
         return num1 + " " + operationType + " " + num2 + " = ?";
     }
