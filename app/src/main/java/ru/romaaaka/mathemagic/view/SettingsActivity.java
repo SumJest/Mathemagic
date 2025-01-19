@@ -14,7 +14,6 @@ import ru.romaaaka.mathemagic.R;
 public class SettingsActivity extends AppCompatActivity {
 
     private RadioGroup difficultyGroup;
-    private RadioGroup operationGroup;
     private Button saveButton;
 
     private SharedPreferences sharedPreferences;
@@ -29,7 +28,6 @@ public class SettingsActivity extends AppCompatActivity {
 
         // Связываем элементы интерфейса
         difficultyGroup = findViewById(R.id.difficultyGroup);
-        operationGroup = findViewById(R.id.operationGroup);
         saveButton = findViewById(R.id.saveButton);
 
         // Загружаем ранее сохранённые настройки
@@ -45,21 +43,17 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void loadSettings() {
         int savedDifficulty = sharedPreferences.getInt("difficulty", R.id.difficultyEasy);
-        int savedOperation = sharedPreferences.getInt("operation", R.id.operationAdd);
 
         // Устанавливаем сохранённые значения
         difficultyGroup.check(savedDifficulty);
-        operationGroup.check(savedOperation);
     }
 
     private void saveSettings() {
         int selectedDifficulty = difficultyGroup.getCheckedRadioButtonId();
-        int selectedOperation = operationGroup.getCheckedRadioButtonId();
 
         // Сохраняем выбранные значения
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("difficulty", selectedDifficulty);
-        editor.putInt("operation", selectedOperation);
         editor.apply();
     }
 }

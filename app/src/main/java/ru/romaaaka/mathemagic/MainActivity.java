@@ -8,6 +8,7 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
 import ru.romaaaka.mathemagic.view.GameActivity;
+import ru.romaaaka.mathemagic.view.GameHistoryActivity;
 import ru.romaaaka.mathemagic.view.SettingsActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -42,13 +43,13 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent); // Переход к экрану настроек
             }
         });
-//
-//        resultsButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(MainActivity.this, ResultActivity.class);
-//                startActivity(intent); // Переход к экрану результатов
-//            }
-//        });
+
+        resultsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, GameHistoryActivity.class);
+                startActivity(intent); // Переход к экрану результатов
+            }
+        });
     }
 }

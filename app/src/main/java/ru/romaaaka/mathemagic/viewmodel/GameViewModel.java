@@ -2,12 +2,17 @@ package ru.romaaaka.mathemagic.viewmodel;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import java.util.List;
+
 import ru.romaaaka.mathemagic.R;
+import ru.romaaaka.mathemagic.database.GameRecord;
 import ru.romaaaka.mathemagic.model.ExampleGenerator;
 import ru.romaaaka.mathemagic.model.GameManager;
+import ru.romaaaka.mathemagic.repository.GameRepository;
 
 
 public class GameViewModel extends ViewModel {
@@ -19,14 +24,19 @@ public class GameViewModel extends ViewModel {
     private final MutableLiveData<Integer> lives = new MutableLiveData<>();
     private final MutableLiveData<Boolean> gameOver = new MutableLiveData<>();
 
+    private GameRepository gameRepository;
+
     private int difficultyLevel; // Уровень сложности
-    private String operationType; // Тип арифметической операции
+
+    private LiveData<List<GameRecord>> allGameRecords;
 
     public GameViewModel(Context context) {
         this.gameManager = new GameManager(3, 60); // 3 жизни, 60 секунд
         this.loadSettings(context);
-        this.exampleGenerator = new ExampleGenerator(operationType, difficultyLevel);
+        this.exampleGenerator = new ExampleGenerator(difficultyLevel);
         startNewGame();
+        gameRepository = new GameRepository(context);
+        allGameRecords = gameRepository.getAllRecords();  // Наблюдаем за данными
     }
 
     // Метод для загрузки настроек из SharedPreferences
@@ -43,20 +53,6 @@ public class GameViewModel extends ViewModel {
             difficultyLevel = 3;
         } else {
             difficultyLevel = 1; // По умолчанию Easy
-        }
-
-        // Загрузка типа операции
-        int operationId = sharedPreferences.getInt("operation", R.id.operationAdd);
-        if (operationId == R.id.operationAdd) {
-            operationType = "+";
-        } else if (operationId == R.id.operationSubtract) {
-            operationType = "-";
-        } else if (operationId == R.id.operationMultiply) {
-            operationType = "*";
-        } else if (operationId == R.id.operationDivide) {
-            operationType = "/";
-        } else {
-            operationType = "+"; // По умолчанию Addition
         }
     }
 
@@ -102,6 +98,24 @@ public class GameViewModel extends ViewModel {
 
     public MutableLiveData<Boolean> isGameOver() {
         return gameOver;
+    }
+
+    public String getDifficulty() {
+        switch (difficultyLevel) {
+            case 1:
+                return "easy";
+            case 2:
+                return "medium";
+            case 3:
+                return "hard";
+            default:
+                throw new IllegalArgumentException("Invalid level: " + difficultyLevel);
+        }
+    }
+
+    // Получаем все записи об играх (LiveData)
+    public LiveData<List<GameRecord>> getAllGameRecords() {
+        return allGameRecords;
     }
 }
 

@@ -1,11 +1,12 @@
 package ru.romaaaka.mathemagic.model;
 
+import java.util.Random;
+
 public class ExampleGenerator {
-    private String operationType; // "+", "-", "*", "/"
+    String[] operators = {"+", "-", "*", "/"};
     private int difficulty; // Уровень сложности: 1, 2, 3
 
-    public ExampleGenerator(String operationType, int difficulty) {
-        this.operationType = operationType;
+    public ExampleGenerator(int difficulty) {
         this.difficulty = difficulty;
     }
 
@@ -14,10 +15,21 @@ public class ExampleGenerator {
         int end = (int) Math.pow(10, difficulty);
         return (int) (Math.random() * (end - start)) + start;
     }
+    public String getRandomOperator() {
 
+        // Создаём объект Random
+        Random random = new Random();
+
+        // Случайный индекс от 0 до длины массива - 1
+        int index = random.nextInt(operators.length);
+
+        // Возвращаем случайный оператор
+        return operators[index];
+    }
     public String generateExample() {
         int num1 = generateNumber(this.difficulty);
         int num2 = generateNumber(this.difficulty);
+        String operationType = getRandomOperator();
 
         if (operationType.equals("/")) {
             int answer = ((int) (Math.random() * 9)) + 1;

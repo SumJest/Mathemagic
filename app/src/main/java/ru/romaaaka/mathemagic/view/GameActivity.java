@@ -2,14 +2,20 @@ package ru.romaaaka.mathemagic.view;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Button;
 
+import java.util.Arrays;
+import java.util.List;
+
 import ru.romaaaka.mathemagic.R;
+import ru.romaaaka.mathemagic.repository.GameRepository;
 import ru.romaaaka.mathemagic.utils.TimerHelper;
 import ru.romaaaka.mathemagic.viewmodel.GameViewModel;
 import ru.romaaaka.mathemagic.viewmodel.GameViewModelFactory;
@@ -22,27 +28,39 @@ public class GameActivity extends AppCompatActivity {
     private TextView exampleTextView, scoreTextView, livesTextView, timerTextView, answerDisplay;
     private Button answerButton;
 
+    private GameRepository repository;
+
+    private List<ImageView> hearts;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        repository = new GameRepository(getApplication());
 
         exampleTextView = findViewById(R.id.exampleTextView);
         scoreTextView = findViewById(R.id.scoreTextView);
-        livesTextView = findViewById(R.id.livesTextView);
         progressBar = findViewById(R.id.progressBar);
         answerDisplay = findViewById(R.id.answerDisplay);
         answerButton = findViewById(R.id.btnSubmit);
+
+        hearts = Arrays.asList(
+                findViewById(R.id.heart1),
+                findViewById(R.id.heart2),
+                findViewById(R.id.heart3)
+        );
+
         findViewById(R.id.btnClear).setOnClickListener(v -> clearAnswer());
 
         gameViewModel = new ViewModelProvider(this, new GameViewModelFactory(this)).get(GameViewModel.class);
 
         gameViewModel.getCurrentExample().observe(this, exampleTextView::setText);
         gameViewModel.getScore().observe(this, score -> scoreTextView.setText("Score: " + score));
-        gameViewModel.getLives().observe(this, lives -> livesTextView.setText("Lives: " + lives));
+        gameViewModel.getLives().observe(this, this::updateHearts);
         gameViewModel.isGameOver().observe(this, isGameOver -> {
             if (isGameOver) finish(); // Завершаем игру
         });
+        displayHighestScore(gameViewModel.getDifficulty());
         setupKeyboard();
         timerHelper = new TimerHelper(60, new TimerHelper.TimerListener() {
             @Override
@@ -56,6 +74,19 @@ public class GameActivity extends AppCompatActivity {
             }
         });
 
+        // Наблюдаем за gameOver
+        gameViewModel.isGameOver().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isGameOver) {
+                if (isGameOver != null && isGameOver) {
+                    // Игра завершена, записываем результаты
+                    saveGameResult(3 - gameViewModel.getLives().getValue(),
+                            gameViewModel.getDifficulty(),
+                            gameViewModel.getScore().getValue()
+                    );
+                }
+            }
+        });
         answerButton.setOnClickListener(v -> {
             // Логика проверки ответа
             float answer = Float.parseFloat(answerDisplay.getText().toString());
@@ -65,6 +96,18 @@ public class GameActivity extends AppCompatActivity {
 
         timerHelper.start();
     }
+
+    // Функция для уменьшения жизней
+    private void updateHearts(int lives) {
+        for (int i = 0; i < hearts.size(); i++) {
+            if (i < lives) {
+                hearts.get(i).setImageResource(R.drawable.ic_heart_full); // Полное сердце
+            } else {
+                hearts.get(i).setImageResource(R.drawable.ic_heart_empty); // Пустое сердце
+            }
+        }
+    }
+
     private void setupKeyboard() {
         int[] buttonIds = {
                 R.id.btn_0, R.id.btn_1, R.id.btn_2, R.id.btn_3, R.id.btn_4,
@@ -105,6 +148,17 @@ public class GameActivity extends AppCompatActivity {
 
     private void updateAnswerDisplay() {
         answerDisplay.setText(currentInput.length() == 0 ? "0" : currentInput.toString());
+    }
+
+    private void displayHighestScore(String difficulty) {
+        repository.getHighestScore(difficulty, highestScore -> {
+            TextView recordTextView = findViewById(R.id.recordTextView);
+            recordTextView.setText("Highest Score: " + highestScore);
+        });
+    }
+
+    private void saveGameResult(int errors, String difficulty, int score) {
+        repository.saveGameRecord(errors, difficulty, score);
     }
 }
 

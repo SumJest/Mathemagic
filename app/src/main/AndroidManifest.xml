@@ -26,7 +26,7 @@
 <!--        <activity android:name=".MainActivity" />-->
         <activity android:name=".view.GameActivity" />
         <activity android:name=".view.SettingsActivity" />
-
+        <activity android:name=".view.GameHistoryActivity" />
         <!--        <activity android:name=".SettingsActivity" />-->
 <!--        <activity android:name=".ResultActivity" />-->
     </application>
