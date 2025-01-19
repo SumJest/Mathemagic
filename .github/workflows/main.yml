@@ -69,7 +69,6 @@ jobs:
         prerelease: false
         release_name: ${{ steps.gitversion.outputs.semVer }}
         tag_name: ${{ github.ref }}
-        body_path: CHANGELOG.md
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
