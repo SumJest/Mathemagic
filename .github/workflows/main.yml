@@ -2,8 +2,6 @@ name: Build APK and Create Release
 
 on:
   push:
-    branches:
-      - master
     tags:
       - '*'
 
@@ -82,5 +80,5 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: build-artifacts/app-debug.apk
-        asset_name: mathemagic-${{ VERSION }}.apk
+        asset_name: mathemagic-${{ steps.gitversion.outputs.semVer }}.apk
         asset_content_type: application/vnd.android.package-archive
