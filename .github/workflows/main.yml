@@ -49,7 +49,7 @@ jobs:
         echo "Build Time: $(date)" >> build-artifacts/version.txt
 
     - name: Upload APK and metadata as artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: build-artifacts
         path: build-artifacts
