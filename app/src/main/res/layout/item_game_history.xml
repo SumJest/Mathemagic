@@ -11,14 +11,14 @@
         android:id="@+id/difficultyTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Уровень: medium"
+        android:text="Difficulty: medium"
         android:textSize="16sp"/>
 
     <TextView
         android:id="@+id/scoreTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Очки: 100"
+        android:text="Score: 100"
         android:textSize="16sp"
         android:layout_marginTop="4dp"/>
 
@@ -26,7 +26,7 @@
         android:id="@+id/errorsTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Ошибки: 2"
+        android:text="Mistakes: 2"
         android:textSize="16sp"
         android:layout_marginTop="4dp"/>
 </LinearLayout>
