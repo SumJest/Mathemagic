@@ -69,9 +69,10 @@ public class GameViewModel extends ViewModel {
         currentExample.setValue(example);
     }
 
-    public void submitAnswer(float userAnswer) {
+    public boolean submitAnswer(float userAnswer) {
         float correctAnswer = exampleGenerator.getCorrectAnswer(currentExample.getValue());
-        if (gameManager.checkAnswer(userAnswer, correctAnswer)) {
+        boolean isCorrect = gameManager.checkAnswer(userAnswer, correctAnswer);
+        if (isCorrect) {
             score.setValue(gameManager.getScore());
         } else {
             lives.setValue(gameManager.getLives());
@@ -82,6 +83,7 @@ public class GameViewModel extends ViewModel {
         } else {
             generateNextExample();
         }
+        return isCorrect;
     }
 
     public MutableLiveData<String> getCurrentExample() {

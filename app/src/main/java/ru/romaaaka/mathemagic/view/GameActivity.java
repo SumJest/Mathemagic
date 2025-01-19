@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.List;
@@ -80,6 +81,7 @@ public class GameActivity extends AppCompatActivity {
             public void onChanged(Boolean isGameOver) {
                 if (isGameOver != null && isGameOver) {
                     // Игра завершена, записываем результаты
+                    showToast( "Game over", Toast.LENGTH_SHORT);
                     saveGameResult(3 - gameViewModel.getLives().getValue(),
                             gameViewModel.getDifficulty(),
                             gameViewModel.getScore().getValue()
@@ -91,10 +93,18 @@ public class GameActivity extends AppCompatActivity {
             // Логика проверки ответа
             float answer = Float.parseFloat(answerDisplay.getText().toString());
             clearAnswer();
-            gameViewModel.submitAnswer(answer);
+            boolean isCorrect = gameViewModel.submitAnswer(answer);
+            if (isCorrect){
+                showToast("Correct 👍", Toast.LENGTH_SHORT);
+            } else {
+                showToast("Incorrect 👎", Toast.LENGTH_SHORT);
+            }
         });
 
         timerHelper.start();
+    }
+    private void showToast(String text, int length){
+        Toast.makeText(this, text, length).show();
     }
 
     // Функция для уменьшения жизней
