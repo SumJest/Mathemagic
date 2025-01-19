@@ -73,24 +73,24 @@ jobs:
 
         # Create the release
         curl -X POST \
-          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Authorization: Bearer $GITHUB_TOKEN" \
           -d "{\"tag_name\":\"$VERSION\",\"name\":\"$RELEASE_NAME\",\"body\":\"$CHANGELOG\"}" \
           https://api.github.com/repos/${{ github.repository }}/releases
 
     - name: Upload artifacts to the release
       run: |
         VERSION=${{ env.VERSION }}
-        RELEASE_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/${{ github.repository }}/releases/tags/$VERSION | jq -r .id)
+        RELEASE_ID=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/${{ github.repository }}/releases/tags/$VERSION | jq -r .id)
         echo "Release ID: $RELEASE_ID"
 
         # Upload APK
         curl -X POST \
-          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Authorization: Bearer $GITHUB_TOKEN" \
           -F "file=@build-artifacts/app-debug.apk" \
           https://uploads.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets?name=app-debug.apk
 
         # Upload metadata
         curl -X POST \
-          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Authorization: Bearer $GITHUB_TOKEN" \
           -F "file=@build-artifacts/version.txt" \
           https://uploads.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets?name=version.txt
