@@ -37,15 +37,15 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - name: Install git-semver
-      run: npm install -g git-semver
-
     - name: Get version using git-semver
       id: version
       run: |
         VERSION=${{ steps.gitversion.outputs.semVer }}
         echo "VERSION=$VERSION" >> $GITHUB_ENV
-
+        
+    - name: Grant execute permission to gradlew
+      run: chmod +x ./gradlew
+      
     - name: Build APK in debug mode
       run: ./gradlew assembleDebug
 
