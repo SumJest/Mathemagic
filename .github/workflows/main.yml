@@ -1,11 +1,4 @@
-name: Generated APK AAB (Upload - Create Artifact To Github Action)
-
-env:
-  # The name of the main module repository
-  main_project_module: app
-
-  # The name of the Play Store
-  playstore_name: Frogobox ID
+name: Build APK and Create Release
 
 on:
   push:
@@ -13,70 +6,82 @@ on:
       - master
     tags:
       - '*'
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      # Set Current Date As Env Variable
-      - name: Set current date as env variable
-        run: echo "date_today=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
 
-      # Set Repository Name As Env Variable
-      - name: Set repository name as env variable
-        run: echo "repository_name=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
+    - name: Cache Gradle dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
 
-      - name: Set Up JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu' # See 'Supported distributions' for available options
-          java-version: '17'
-          cache: 'gradle'
+    - name: Install git-semver
+      run: npm install -g git-semver
 
-      - name: Change wrapper permissions
-        run: chmod +x ./gradlew
+    - name: Get version using git-semver
+      id: version
+      run: |
+        VERSION=$(git-semver)
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      # Run Build Project
-      - name: Build gradle project
-        run: ./gradlew build
+    - name: Build APK in debug mode
+      run: ./gradlew assembleDebug
 
-      # Create APK Debug
-      - name: Build apk debug project (APK) - ${{ env.main_project_module }} module
-        run: ./gradlew assembleDebug
+    - name: Archive APK and metadata
+      run: |
+        mkdir -p build-artifacts
+        cp app/build/outputs/apk/debug/app-debug.apk build-artifacts/app-debug.apk
+        echo "Version: $VERSION" > build-artifacts/version.txt
+        echo "Git Commit: $(git rev-parse HEAD)" >> build-artifacts/version.txt
+        echo "Build Time: $(date)" >> build-artifacts/version.txt
 
-      # Create APK Release
-      - name: Build apk release project (APK) - ${{ env.main_project_module }} module
-        run: ./gradlew assemble
+    - name: Upload APK and metadata as artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-artifacts
+        path: build-artifacts
 
-      # Create Bundle AAB Release
-      # Noted for main module build [main_project_module]:bundleRelease
-      - name: Build app bundle release (AAB) - ${{ env.main_project_module }} module
-        run: ./gradlew ${{ env.main_project_module }}:bundleRelease
+    - name: Create GitHub release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        VERSION=${{ env.VERSION }}
+        RELEASE_NAME="Release $VERSION"
+        CHANGELOG="Automatic release based on version $VERSION"
 
-      # Upload Artifact Build
-      # Noted For Output [main_project_module]/build/outputs/apk/debug/
-      - name: Upload APK Debug - ${{ env.repository_name }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - APK(s) debug generated
-          path: ${{ env.main_project_module }}/build/outputs/apk/debug/
+        # Create the release
+        curl -X POST \
+          -H "Authorization: token $GITHUB_TOKEN" \
+          -d "{\"tag_name\":\"$VERSION\",\"name\":\"$RELEASE_NAME\",\"body\":\"$CHANGELOG\"}" \
+          https://api.github.com/repos/${{ github.repository }}/releases
 
-      # Noted For Output [main_project_module]/build/outputs/apk/release/
-      - name: Upload APK Release - ${{ env.repository_name }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - APK(s) release generated
-          path: ${{ env.main_project_module }}/build/outputs/apk/release/
+    - name: Upload artifacts to the release
+      run: |
+        VERSION=${{ env.VERSION }}
+        RELEASE_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/${{ github.repository }}/releases/tags/$VERSION | jq -r .id)
+        echo "Release ID: $RELEASE_ID"
 
-      # Noted For Output [main_project_module]/build/outputs/bundle/release/
-      - name: Upload AAB (App Bundle) Release - ${{ env.repository_name }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - App bundle(s) AAB release generated
-          path: ${{ env.main_project_module }}/build/outputs/bundle/release/
+        # Upload APK
+        curl -X POST \
+          -H "Authorization: token $GITHUB_TOKEN" \
+          -F "file=@build-artifacts/app-debug.apk" \
+          https://uploads.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets?name=app-debug.apk
+
+        # Upload metadata
+        curl -X POST \
+          -H "Authorization: token $GITHUB_TOKEN" \
+          -F "file=@build-artifacts/version.txt" \
+          https://uploads.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets?name=version.txt
