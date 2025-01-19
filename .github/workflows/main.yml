@@ -64,33 +64,23 @@ jobs:
         path: build-artifacts
 
     - name: Create GitHub release
+      uses: actions/create-release@v1
+      id: create_release
+      with:
+        draft: false
+        prerelease: false
+        release_name: ${{ steps.gitversion.outputs.semVer }}
+        tag_name: ${{ github.ref }}
+        body_path: CHANGELOG.md
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        VERSION=${{ env.VERSION }}
-        RELEASE_NAME="Release $VERSION"
-        CHANGELOG="Automatic release based on version $VERSION"
 
-        # Create the release
-        curl -X POST \
-          -H "Authorization: Bearer $GITHUB_TOKEN" \
-          -d "{\"tag_name\":\"$VERSION\",\"name\":\"$RELEASE_NAME\",\"body\":\"$CHANGELOG\"}" \
-          https://api.github.com/repos/${{ github.repository }}/releases
-
-    - name: Upload artifacts to the release
-      run: |
-        VERSION=${{ env.VERSION }}
-        RELEASE_ID=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/${{ github.repository }}/releases/tags/$VERSION | jq -r .id)
-        echo "Release ID: $RELEASE_ID"
-
-        # Upload APK
-        curl -X POST \
-          -H "Authorization: Bearer $GITHUB_TOKEN" \
-          -F "file=@build-artifacts/app-debug.apk" \
-          https://uploads.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets?name=app-debug.apk
-
-        # Upload metadata
-        curl -X POST \
-          -H "Authorization: Bearer $GITHUB_TOKEN" \
-          -F "file=@build-artifacts/version.txt" \
-          https://uploads.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets?name=version.txt
+    - name: Upload assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: build-artifacts/app-debug.apk
+        asset_name: mathemagic-${{ VERSION }}.apk
+        asset_content_type: application/vnd.android.package-archive
